@@ -1,0 +1,33 @@
+version: 0.0.1
+type: plugin
+author: "randommsg"
+name: "zhiyun-hz"
+label:
+  en_US: "Zhiyun Hangzhou"
+  zh_Hans: "智云杭州"
+description:
+  en_US: "Model provider for the Zhiyun Hangzhou AI Store (aistore.hztele.com.cn), supporting both OpenAI-compatible and Anthropic-native APIs per model. Thinking mode: top-level enable_thinking body field (OpenAI mode) or standard thinking.budget_tokens (Anthropic mode)."
+  zh_Hans: "智云杭州 AI 商店（aistore.hztele.com.cn）模型供应商，按模型支持 OpenAI 兼容与 Anthropic 原生双协议。思考模式：OpenAI 协议以请求体顶层 enable_thinking 传递，Anthropic 协议映射标准 thinking.budget_tokens。"
+created_at: "2026-11-24T02:00:00Z"
+icon: icon.svg
+resource:
+  memory: 1048576
+plugins:
+  models:
+    - "provider/zhiyun_hz.yaml"
+repo: "https://github.com/RandomMsg/dify-plugin-zhiyun-hz"
+contact: "randommsg@users.noreply.github.com"
+meta:
+  version: 0.0.1
+  arch:
+    - "amd64"
+    - "arm64"
+  runner:
+    language: "python"
+    version: "3.12"
+    entrypoint: "main"
+  minimum_dify_version: 1.0.0
+privacy: "./PRIVACY.md"
+network:
+  domains:
+    - "aistore.hztele.com.cn"
