@@ -1,0 +1,175 @@
+provider: zhiyun_hz
+label:
+  en_US: Zhiyun Hangzhou
+  zh_Hans: 智云杭州
+description:
+  en_US: OpenAI-compatible large language model service from China Telecom Hangzhou AI Store (aistore.hztele.com.cn). Add each model manually with its model name and AppKey.
+  zh_Hans: 智云杭州 AI 商店（aistore.hztele.com.cn）的 OpenAI 兼容大模型服务。支持按模型名称逐个添加模型，使用密钥管理页获取的安全密钥（AppKey）鉴权。
+icon_small:
+  en_US: icon.svg
+icon_large:
+  en_US: icon.svg
+background: "#2B5AED"
+help:
+  title:
+    en_US: Get your AppKey from Zhiyun Hangzhou
+    zh_Hans: 从智云杭州获取安全密钥
+  url:
+    en_US: https://aistore.hztele.com.cn
+    zh_Hans: https://aistore.hztele.com.cn
+supported_model_types:
+  - llm
+configurate_methods:
+  - customizable-model
+model_credential_schema:
+  model:
+    label:
+      en_US: Model Name
+      zh_Hans: 模型名称
+    placeholder:
+      en_US: Enter the model name listed on the platform, e.g. deepseek-r1 / qwen3-32b
+      zh_Hans: 输入平台上展示的模型名称，如 deepseek-r1 / qwen3-32b
+  credential_form_schemas:
+    - variable: api_protocol
+      label:
+        en_US: API Protocol
+        zh_Hans: 调用协议
+      type: select
+      required: true
+      default: openai
+      help:
+        en_US: Which wire protocol this model is reached through. OpenAI-compatible calls /v1/chat/completions (top-level enable_thinking per vendor); Anthropic-native calls /v1/messages via the Anthropic SDK (thinking.budget_tokens object, strict spec field whitelist).
+        zh_Hans: 选择该模型使用的接口协议。OpenAI 兼容走 /v1/chat/completions（enable_thinking 为请求体顶层参数）；Anthropic 原生走 /v1/messages（Anthropic SDK 调用，标准 thinking.budget_tokens 对象，字段严格按规范白名单透传）。
+      options:
+        - value: openai
+          label:
+            en_US: OpenAI-compatible
+            zh_Hans: OpenAI 兼容
+        - value: anthropic
+          label:
+            en_US: Anthropic-native
+            zh_Hans: Anthropic 原生
+    - variable: api_key
+      label:
+        en_US: AppKey
+        zh_Hans: 安全密钥（AppKey）
+      type: secret-input
+      required: true
+      placeholder:
+        en_US: Enter your AppKey
+        zh_Hans: 输入密钥管理页获取的安全密钥
+      help:
+        en_US: The security key from the "Key Management" page. Sent as Authorization Bearer on both protocols (Anthropic SDK 2.x uses Bearer with the anthropic-version header).
+        zh_Hans: "在智云杭州「密钥管理」页获取的安全密钥。两种协议均作为 Authorization: Bearer 发送（Anthropic SDK 2.x 现行规范即如此，并附带 anthropic-version 头）。"
+    - variable: endpoint_url
+      label:
+        en_US: API Base URL
+        zh_Hans: API 基础地址
+      type: text-input
+      required: false
+      default: "https://aistore.hztele.com.cn/v1"
+      placeholder:
+        en_US: Defaults to https://aistore.hztele.com.cn/v1
+        zh_Hans: 留空则使用 https://aistore.hztele.com.cn/v1
+      help:
+        en_US: The plugin auto-normalizes the suffix per protocol (adds /v1 for OpenAI, strips it for Anthropic), so either the site root or the /v1 URL works.
+        zh_Hans: 插件会按所选协议自动处理路径后缀（OpenAI 补 /v1，Anthropic 去 /v1），填站点根地址或带 /v1 的地址均可。
+    - variable: context_size
+      label:
+        en_US: Context Size
+        zh_Hans: 上下文长度
+      type: text-input
+      required: false
+      default: "32768"
+      placeholder:
+        en_US: Maximum context window tokens, e.g. 32768
+        zh_Hans: 模型上下文窗口 token 数，如 32768
+      help:
+        en_US: Used by Dify for prompt trimming and token accounting. Set it to the value published for your model.
+        zh_Hans: 供 Dify 做上下文裁剪与用量估算，请按平台公布的模型参数填写。
+    - variable: max_tokens
+      label:
+        en_US: Max Output Tokens
+        zh_Hans: 最大输出 tokens
+      type: text-input
+      required: false
+      default: "16384"
+      placeholder:
+        en_US: Upper bound of the max_tokens parameter, e.g. 16384
+        zh_Hans: max_tokens 可调上限，如 16384
+      help:
+        en_US: The upper bound of the max_tokens slider in the model parameter panel.
+        zh_Hans: 模型参数面板中 max_tokens 滑块的上限取值。
+    - variable: use_vision
+      label:
+        en_US: Vision Support
+        zh_Hans: 图片识别（视觉输入）
+      type: select
+      required: true
+      default: "false"
+      help:
+        en_US: Enable when the model accepts image inputs. Dify then exposes image upload / multimodal variables to apps for this model.
+        zh_Hans: 模型支持图片理解时开启。开启后 Dify 在应用侧为该模型提供图片上传与多模态输入能力。
+      options:
+        - value: "false"
+          label:
+            en_US: No (text only)
+            zh_Hans: 否（纯文本）
+        - value: "true"
+          label:
+            en_US: Yes (accepts images)
+            zh_Hans: 是（支持图片输入）
+    - variable: stream_mode
+      label:
+        en_US: API Streaming Mode
+        zh_Hans: 接口流式策略
+      type: select
+      required: true
+      default: auto
+      help:
+        en_US: "This controls the plugin→vendor API call only; whether the end user sees a streamed reply is the app's own 'Streaming Response' setting, independent of this. Note workflow/Chatflow LLM nodes have NO app-side streaming toggle — there the stream flag follows the API's response_mode, so pin it here if you need to. auto = keep whatever Dify passes in. force_stream = always vendor-streaming, aggregated when Dify asked for blocking (required by gateways where enable_thinking only works while streaming). force_block = always vendor-blocking, emulated as a stream (use when the gateway's SSE is unreliable)."
+        zh_Hans: "此配置只控制「插件→厂商接口」这一段是否流式调用；最终回复是否逐字呈现给用户由应用自身的「流式响应」开关决定，两者互不影响。注意：工作流/Chatflow 的 LLM 节点在应用端没有流式开关，其 stream 标志取决于 API 调用时的 response_mode——如需固定，请在此选择。跟随平台＝沿用 Dify 传入的值；始终流式＝总以 stream=true 调厂商（平台要求非流式时插件自动聚合，enable_thinking 仅流式可用的网关选它）；始终非流式＝总以阻塞方式调厂商（流式由插件模拟，SSE 不稳定时选它）。"
+      options:
+        - value: auto
+          label:
+            en_US: Follow platform call (default)
+            zh_Hans: 跟随平台调用（默认）
+        - value: force_stream
+          label:
+            en_US: Always call vendor streaming
+            zh_Hans: 始终流式调用厂商接口
+        - value: force_block
+          label:
+            en_US: Always call vendor blocking
+            zh_Hans: 始终非流式调用厂商接口
+    - variable: function_calling_type
+      label:
+        en_US: Tool Calling Style
+        zh_Hans: 工具调用协议
+      type: select
+      required: false
+      default: tool_call
+      help:
+        en_US: Keep "tool_call" for standard agents support. Choose "no_call" if your model does not support function calling.
+        zh_Hans: OpenAI 标准 agents 能力请保持 tool_call；模型不支持函数调用时选「不支持」。
+      options:
+        - value: tool_call
+          label:
+            en_US: Standard tool calling
+            zh_Hans: 标准工具调用
+        - value: function_call
+          label:
+            en_US: Legacy function_call (OpenAI protocol only)
+            zh_Hans: 旧式 function_call（仅 OpenAI 协议）
+          show_on:
+            - variable: api_protocol
+              value: openai
+        - value: no_call
+          label:
+            en_US: No tool calling
+            zh_Hans: 不支持工具调用
+extra:
+  python:
+    provider_source: provider/zhiyun_hz.py
+    model_sources:
+      - models/llm/llm.py
